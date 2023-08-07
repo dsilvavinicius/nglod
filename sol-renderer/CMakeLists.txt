@@ -26,7 +26,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT DEFINED CMAKE_CUDA_STANDARD)
-    set(CMAKE_CUDA_STANDARD 14)
+    set(CMAKE_CUDA_STANDARD 17)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 endif()
 
@@ -115,7 +115,7 @@ add_executable(
     sdfRenderer.cu
 )
 
-set_property(TARGET sdfRenderer PROPERTY CXX_STANDARD 14)
+set_property(TARGET sdfRenderer PROPERTY CXX_STANDARD 17)
 set_property(TARGET sdfRenderer PROPERTY CUDA_ARCHITECTURES 70)
 
 target_include_directories(

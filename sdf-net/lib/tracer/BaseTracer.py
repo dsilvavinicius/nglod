@@ -28,11 +28,11 @@ class BaseTracer(object):
 
     def __init__(self,
         args                 = None,
-        camera_clamp : list  = None,
-        step_size    : float = None,
-        grad_method  : str   = None,
-        num_steps    : int   = None, # samples for raymaching, iterations for sphere trace
-        min_dis      : float = None): 
+        camera_clamp : list  = [-5, 10],
+        step_size    : float = 1.0,
+        grad_method  : str   = 'autodiff',
+        num_steps    : int   = 50, # samples for raymaching, iterations for sphere trace
+        min_dis      : float = 0.0003): 
 
         self.args = args
         self.camera_clamp = setparam(args, camera_clamp, 'camera_clamp')

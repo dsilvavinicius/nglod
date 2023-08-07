@@ -30,7 +30,8 @@ from lib.utils import PerfTimer
 def sample_surface(n, net, sol=False, device='cuda'):
     
     timer = PerfTimer(activate=False)
-    tracer = SphereTracer(device, sol=sol)
+    #tracer = SphereTracer(device, sol=sol)
+    tracer = SphereTracer()
 
     # Sample surface using random tracing (resample until num_samples is reached)
     i = 0

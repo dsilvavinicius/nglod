@@ -1,0 +1,30 @@
+name: nglod
+channels:
+  - pytorch
+  - conda-forge
+  - nvidia
+  - defaults
+dependencies:
+  - cudatoolkit=11.1
+  - pytorch=1.8.1
+  - torchvision=0.9.1
+  - openexr-python
+  - pip
+  - pip:
+    - pysdf
+    - pymeshlab
+    - pyrender
+    - tensorboard
+    - matplotlib
+    - git+https://github.com/tinyobjloader/tinyobjloader.git
+    - pybind11
+    - trimesh>=3.0
+    - tqdm
+    - Pillow==8.2.0
+    - scipy
+    - scikit-image
+    - six==1.12.0
+    - moviepy
+    - opencv-python
+    - plyfile
+    - polyscope
