@@ -21,8 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ******************************************************************************/
 
-#define CUB_NS_PREFIX namespace kaolin {
-#define CUB_NS_POSTFIX }
+//#define CUB_NS_PREFIX namespace kaolin {
+//#define CUB_NS_POSTFIX }
     
 // Ensure printing of CUDA runtime errors to console
 #define CUB_STDERR
@@ -161,14 +161,14 @@ std::vector<at::Tensor> SPC::SetGeometry(torch::Tensor Octree)
   
     void*           d_temp_storage = NULL;
     size_t          temp_storage_bytes = 0;
-    kaolin::cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, m_Osize+1);
+    /*kaolin::*/cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, m_Osize+1);
 
     torch::Tensor temp_storage = torch::zeros({(long)temp_storage_bytes}, torch::device(torch::kCUDA).dtype(torch::kByte));
     d_temp_storage = (void*)temp_storage.data_ptr<uchar>();
 
     // compute exclusive sum 1 element beyond end of list to get inclusive sum starting at d_PrefixSum+1
     d_ScanNodes << < (m_Osize + 1023) / 1024, 1024 >> >(m_Osize, Odata, d_Info);
-    kaolin::cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, m_Osize+1); // carful with the +1
+    /*kaolin::*/cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, m_Osize+1); // carful with the +1
 
     uint psize;
     cudaMemcpy(&psize, d_PrefixSum+m_Osize, sizeof(uint), cudaMemcpyDeviceToHost);

@@ -5,25 +5,27 @@ channels:
   - nvidia
   - defaults
 dependencies:
-  - cudatoolkit=11.1
-  - pytorch=1.8.1
-  - torchvision=0.9.1
+  - numpy
+  - cudatoolkit
+  - pytorch
+  - torchvision
   - openexr-python
   - pip
   - pip:
     - pysdf
+    - mesh2sdf
     - pymeshlab
     - pyrender
     - tensorboard
     - matplotlib
     - git+https://github.com/tinyobjloader/tinyobjloader.git
     - pybind11
-    - trimesh>=3.0
+    - trimesh
     - tqdm
-    - Pillow==8.2.0
+    - Pillow
     - scipy
     - scikit-image
-    - six==1.12.0
+    - six
     - moviepy
     - opencv-python
     - plyfile

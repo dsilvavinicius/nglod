@@ -21,8 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ******************************************************************************/
 
-#define CUB_NS_PREFIX namespace kaolin {
-#define CUB_NS_POSTFIX }
+//#define CUB_NS_PREFIX namespace kaolin {
+//#define CUB_NS_POSTFIX }
     
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,8 +32,8 @@
 #include <vector>
 #include <iostream>
 
-#include <helper_cuda.h>
-#include <helper_math.h>
+#include "helper_cuda.h"
+#include "helper_math.h"
 #include <vector_types.h>
 
 #include <GL/glew.h>

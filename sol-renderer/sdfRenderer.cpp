@@ -26,7 +26,7 @@
 #include <iostream> 
 
 // OpenGL Graphics includes
-#include <helper_gl.h>
+#include "helper_gl.h"
 #include <GL/freeglut.h>
 
 // includes, cuda
@@ -34,10 +34,10 @@
 #include <cuda_gl_interop.h>
 
 // Utilities and timing functions
-#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include "helper_functions.h"    // includes cuda.h and cuda_runtime_api.h
 
 // CUDA helper functions
-#include <helper_cuda.h>         // helper functions for CUDA error check
+#include "helper_cuda.h"         // helper functions for CUDA error check
 #include <vector_types.h>
 #include <spc/SPC.h>
 
@@ -146,6 +146,8 @@ void reshapeWindow(int w, int h);
 
 extern void initGLBuffers(uint windowWidth, uint windowHeight)
 {
+    std::cout << windowWidth << " X " << windowHeight << std::endl;
+
     // create pixel buffer object
     glGenBuffers(1, &pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
@@ -154,6 +156,8 @@ extern void initGLBuffers(uint windowWidth, uint windowHeight)
 
     // register this buffer object with CUDA
     cudaGraphicsGLRegisterBuffer(&cuda_pbo_resource, pbo, cudaGraphicsMapFlagsWriteDiscard);
+
+    std::cout << "GL Buffers Initialized." << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -399,9 +403,11 @@ int main(int argc, char **argv)
     CUDA_PRINT_ERROR();
 
     //// GL initialization
-    initGLBuffers(g_Width, g_Height);
+    //initGLBuffers(g_Width, g_Height);
+    initGLBuffers(500, 500);
     CUDA_PRINT_ERROR();
- 
+    std::cout << "No errors after buffer init" << std::endl;
+
     //// start rendering mainloop
     glutMainLoop();
 

@@ -193,6 +193,9 @@ cnpy::NpyArray load_the_npz_array(FILE* fp, uint32_t compr_bytes, uint32_t uncom
     std::vector<unsigned char> buffer_compr(compr_bytes);
     std::vector<unsigned char> buffer_uncompr(uncompr_bytes);
     size_t nread = fread(&buffer_compr[0],1,compr_bytes,fp);
+    std::cout << "compr_bytes: " << compr_bytes << std::endl <<
+        "uncompr_bytes: " << uncompr_bytes << std::endl << 
+        "nread: " << nread << std::endl;
     if(nread != compr_bytes)
         throw std::runtime_error("load_the_npy_file: failed fread");
 
@@ -244,6 +247,15 @@ cnpy::npz_t cnpy::npz_load(std::string fname) {
 
         //if we've reached the global header, stop reading
         if(local_header[2] != 0x03 || local_header[3] != 0x04) break;
+
+        // DEBUG
+        {
+            std::cout << "Local Header Bytes: ";
+            for (size_t i = 0; i < local_header.size(); ++i) {
+                std::cout << std::hex << static_cast<int>(local_header[i] & 0xFF) << " ";
+            }
+            std::cout << std::endl;
+        }
 
         //read in the variable name
         uint16_t name_len = *(uint16_t*) &local_header[26];

@@ -77,25 +77,55 @@ class SOL_NGLOD(object):
     def __call__(self, x):
         return self.sdf(x)
 
+    # def save(self, path):
+    #     print(f"Saving to {path}")
+
+    #     cc = torch.cat(self.cc, dim=0).cpu().detach()
+    #     cf = torch.cat(self.cf, dim=0).cpu().detach()
+    #     w0 = torch.stack(self.w0, dim=0).cpu().detach()
+    #     b0 = torch.stack(self.b0, dim=0).cpu().detach()
+    #     w1 = torch.stack(self.w1, dim=0).cpu().detach()
+    #     b1 = torch.stack(self.b1, dim=0).cpu().detach()
+    #     pyramid = self.pyramid
+
+    #     print("Will use savez_compressed.")
+
+    #     np.savez_compressed(os.path.join(path), 
+    #             octree=self.spc.oroot,
+    #             cc=cc,
+    #             cf=cf,
+    #             w0=w0,
+    #             b0=b0,
+    #             w1=w1,
+    #             b1=b1,
+    #             pyramid=pyramid
+    #     )
+
     def save(self, path):
+        import zipfile
+        import io
+        
         print(f"Saving to {path}")
 
-        cc = torch.cat(self.cc, dim=0).cpu().detach()
-        cf = torch.cat(self.cf, dim=0).cpu().detach()
-        w0 = torch.stack(self.w0, dim=0).cpu().detach()
-        b0 = torch.stack(self.b0, dim=0).cpu().detach()
-        w1 = torch.stack(self.w1, dim=0).cpu().detach()
-        b1 = torch.stack(self.b1, dim=0).cpu().detach()
-        pyramid = self.pyramid
+        # Convert tensors to numpy arrays
+        data = {
+            "octree": self.spc.oroot,
+            "cc": torch.cat(self.cc, dim=0).cpu().detach().numpy(),
+            "cf": torch.cat(self.cf, dim=0).cpu().detach().numpy(),
+            "w0": torch.stack(self.w0, dim=0).cpu().detach().numpy(),
+            "b0": torch.stack(self.b0, dim=0).cpu().detach().numpy(),
+            "w1": torch.stack(self.w1, dim=0).cpu().detach().numpy(),
+            "b1": torch.stack(self.b1, dim=0).cpu().detach().numpy(),
+            "pyramid": self.pyramid,
+        }
 
-        np.savez_compressed(os.path.join(path), 
-                octree=self.spc.oroot,
-                cc=cc,
-                cf=cf,
-                w0=w0,
-                b0=b0,
-                w1=w1,
-                b1=b1,
-                pyramid=pyramid
-        )
+        print("Writing arrays directly to .npz file...")
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=False) as zf:
+            for key, array in data.items():
+                # Save each array to an in-memory .npy file
+                npy_buffer = io.BytesIO()
+                np.save(npy_buffer, array)
+                zf.writestr(f"{key}.npy", npy_buffer.getvalue())
+
+        print(f"File saved successfully to {path}")
 

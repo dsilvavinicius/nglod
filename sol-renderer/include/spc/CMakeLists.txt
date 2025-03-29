@@ -12,6 +12,7 @@ find_package(CNPY REQUIRED)
 
 add_library(
     spc STATIC
+    spc/helper_math.h
     spc/SPC.h
     spc/SPC.cu
     spc/spc_math.h

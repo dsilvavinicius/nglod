@@ -49,7 +49,8 @@ find_package(SOLR REQUIRED)
 find_package(SPC REQUIRED)
 find_package(CNPY REQUIRED)
 
-add_compile_definitions(THRUST_IGNORE_CUB_VERSION_CHECK)
+#add_compile_definitions(THRUST_IGNORE_CUB_VERSION_CHECK -DCUB_NS_QUALIFIER=cub)
+#add_compile_definitions(-DCUB_WRAPPED_NAMESPACE)
 
 add_subdirectory("third-party/cnpy")
 add_subdirectory("include/spc")
@@ -88,7 +89,7 @@ set_property(TARGET lib_sdf PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 target_include_directories(
     lib_sdf PUBLIC
-    cub
+    #cub
 )
 
 message(STATUS ${SOLR_INCLUDE_DIRS})
@@ -111,6 +112,8 @@ target_link_libraries(
 
 add_executable(
     sdfRenderer
+    helper_gl.h
+    helper_cuda.h
     sdfRenderer.cpp
     sdfRenderer.cu
 )
@@ -118,10 +121,13 @@ add_executable(
 set_property(TARGET sdfRenderer PROPERTY CXX_STANDARD 17)
 set_property(TARGET sdfRenderer PROPERTY CUDA_ARCHITECTURES 70)
 
+message("Include: ${CMAKE_CURRENT_SOURCE_DIR}/include/helpers")
+
 target_include_directories(
     sdfRenderer PUBLIC
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${SPC_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/helpers
 )
 
 target_link_libraries(
