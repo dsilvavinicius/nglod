@@ -1,0 +1,214 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Train Asian Dragon",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--dataset-path", "/mnt/j/data/3D_models/asian_dragon.obj",
+                "--epoch", "250",
+                "--exp-name", "asian_dragon"
+            ]
+        },
+        {
+            "name": "Train Asian Dragon real-time",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--dataset-path", "/mnt/j/data/3D_models/asian_dragon.obj",
+                "--epoch", "250",
+                "--exp-name", "asian_dragon_realtime",
+            ]
+        },
+        {
+            "name": "Export Asian Dragon",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--pretrained", "_results/models/asian_dragon_realtime.pth",
+                "--export", "_results/models/asian_dragon.npz"
+            ]
+        },
+        {
+            "name": "Render Asian Dragon Real-time",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--pretrained", "_results/models/asian_dragon.pth",
+                "--render-res", "512", "512",
+                "--shading-mode", "matcap",
+                "--lod", "1",
+                "--camera-origin", "0.25", "-0.05", "-1.2",
+                "--camera-lookat", "0.25", "-0.05", "0",
+                "--camera-fov", "45",
+                "--camera-proj", "persp"
+            ]
+        },
+        {
+            "name": "Render Asian Dragon",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--pretrained", "_results/models/asian_dragon.pth",
+                "--render-res", "512", "512",
+                "--shading-mode", "matcap",
+                "--lod", "5",
+                "--camera-origin", "0.25", "-0.05", "-1.2",
+                "--camera-lookat", "0.25", "-0.05", "0",
+                "--camera-fov", "45",
+                "--camera-proj", "persp"
+            ]
+        },
+        {
+            "name": "Train Thai Statue",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--dataset-path", "/mnt/j/data/3D_models/thai_statuette.obj",
+                "--epoch", "250",
+                "--exp-name", "thai_statue"
+            ]
+        },
+        {
+            "name": "Train Thai Statue real-time",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--dataset-path", "/mnt/j/data/3D_models/thai_statuette.obj",
+                "--epoch", "250",
+                "--exp-name", "thai_statue_realtime",
+            ]
+        },
+        {
+            "name": "Export Thai Statue",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--pretrained", "_results/models/thai_statue_realtime.pth",
+                "--export", "_results/models/thai_statue.npz"
+            ]
+        },
+        {
+            "name": "Render Thai Statue Real-time",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--pretrained", "_results/models/thai_statue.pth",
+                "--render-res", "512", "512",
+                "--shading-mode", "matcap",
+                "--lod", "1",
+                "--camera-origin", "0.25", "-0.05", "-1.2",
+                "--camera-lookat", "0", "0", "0",
+                "--camera-fov", "45",
+                "--camera-proj", "persp"
+            ]
+        },
+        {
+            "name": "Reconstruct Thai Statue Real-time",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/reconstruct.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "1",
+                "--pretrained", "_results/models/thai_statue_realtime.pth",
+                "--render-res", "256", "256",
+                "--lod", "1",
+                "--exp-name", "thai_statue_realtime"
+            ]
+        },
+        {
+            "name": "Render Thai Statue",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/sdf_renderer.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--pretrained", "_results/models/thai_statue.pth",
+                "--render-res", "512", "512",
+                "--shading-mode", "matcap",
+                "--lod", "5",
+                "--camera-origin", "0.25", "-0.05", "-1.2",
+                "--camera-lookat", "0", "0", "0",
+                "--camera-fov", "45",
+                "--camera-proj", "persp"
+            ]
+        },
+        {
+            "name": "Reconstruct Thai Statue",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sdf-net/app/reconstruct.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/sdf-net",
+            "args": [
+                "--net", "OctreeSDF",
+                "--num-lods", "5",
+                "--pretrained", "_results/models/thai_statue.pth",
+                "--render-res", "256", "256",
+                "--lod", "5",
+                "--exp-name", "thai_statue"
+            ]
+        },
+        {
+            "name": "Render in realtime",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/sol-renderer/build/sdfRenderer",
+            "cwd": "${workspaceFolder}/sol-renderer/build",                     // Sets the working directory
+            "args": ["../../sdf-net/_results/models/thai_statue.npz"],
+            "preLaunchTask": "Build Real-time Renderer",
+            "miDebuggerPath": "/usr/bin/gdb"                  // Adjust this if needed for your setup
+        }
+    ]
+}

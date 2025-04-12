@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build Real-time Renderer",
+        "type": "shell",
+        "command": "bash",
+        "options": {
+            "cwd": "${workspaceFolder}/sol-renderer"  // Change to your desired directory
+        },
+        "args": [
+          "-c",
+          "mkdir -p build && cd build && cmake ../ && make -j8"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      }
+    ]
+}
