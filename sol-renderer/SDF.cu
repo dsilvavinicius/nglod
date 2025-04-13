@@ -63,80 +63,96 @@ SDF::~SDF(void) {
 }
 
 void SDF::loadWeights(std::string filename) {
-    
     cnpy::npz_t F = cnpy::npz_load(filename);
-    
+
     auto h_opt = torch::TensorOptions().dtype(torch::kHalf);
+
+    // Process w0
     cnpy::NpyArray w0_npz = F["w0"];
-    long w0_shape[3] = { static_cast<long>(w0_npz.shape[0]), 
-                         static_cast<long>(w0_npz.shape[1]), 
-                         static_cast<long>(w0_npz.shape[2]) };
     torch::Tensor _w0 = torch::from_blob(
-            w0_npz.data<short>(), w0_shape, h_opt);
+        w0_npz.data<short>(),
+        { static_cast<int64_t>(w0_npz.shape[0]),
+         static_cast<int64_t>(w0_npz.shape[1]),
+         static_cast<int64_t>(w0_npz.shape[2]) },
+        h_opt);
 
-    for (long i=0; i<w0_shape[0]; ++i) {
-        w0.push_back(_w0.index({i}));
+    for (long i = 0; i < static_cast<long>(w0_npz.shape[0]); ++i) {
+        w0.push_back(_w0.index({ i }));
         w0[i] = w0[i].to(torch::kFloat);
-        w0[i] = w0[i].to(torch::kCUDA).transpose(0,1);
+        w0[i] = w0[i].to(torch::kCUDA).transpose(0, 1);
     }
 
+    // Process w1
     cnpy::NpyArray w1_npz = F["w1"];
-    long w1_shape[3] = { static_cast<long>(w1_npz.shape[0]), 
-                         static_cast<long>(w1_npz.shape[1]), 
-                         static_cast<long>(w1_npz.shape[2]) };
     torch::Tensor _w1 = torch::from_blob(
-            w1_npz.data<short>(), w1_shape, h_opt);
+        w1_npz.data<short>(),
+        { static_cast<int64_t>(w1_npz.shape[0]),
+         static_cast<int64_t>(w1_npz.shape[1]),
+         static_cast<int64_t>(w1_npz.shape[2]) },
+        h_opt);
 
-    for (long i=0; i<w1_shape[0]; ++i) {
-        w1.push_back(_w1.index({i}));
+    for (long i = 0; i < static_cast<long>(w1_npz.shape[0]); ++i) {
+        w1.push_back(_w1.index({ i }));
         w1[i] = w1[i].to(torch::kFloat);
-        w1[i] = w1[i].to(torch::kCUDA).transpose(0,1);
+        w1[i] = w1[i].to(torch::kCUDA).transpose(0, 1);
     }
 
+    // Process b0
     cnpy::NpyArray b0_npz = F["b0"];
-    long b0_shape[2] = { static_cast<long>(b0_npz.shape[0]), 
-                         static_cast<long>(b0_npz.shape[1]) };
     torch::Tensor _b0 = torch::from_blob(
-            b0_npz.data<short>(), b0_shape, h_opt);
+        b0_npz.data<short>(),
+        { static_cast<int64_t>(b0_npz.shape[0]),
+         static_cast<int64_t>(b0_npz.shape[1]) },
+        h_opt);
 
-    for (long i=0; i<b0_shape[0]; ++i) {
-        b0.push_back(_b0.index({i}));
+    for (long i = 0; i < static_cast<long>(b0_npz.shape[0]); ++i) {
+        b0.push_back(_b0.index({ i }));
         b0[i] = b0[i].to(torch::kFloat);
         b0[i] = b0[i].to(torch::kCUDA);
     }
 
+    // Process b1
     cnpy::NpyArray b1_npz = F["b1"];
-    long b1_shape[2] = { static_cast<long>(b1_npz.shape[0]), 
-                         static_cast<long>(b1_npz.shape[1]) };
     torch::Tensor _b1 = torch::from_blob(
-            b1_npz.data<short>(), b1_shape, h_opt);
+        b1_npz.data<short>(),
+        { static_cast<int64_t>(b1_npz.shape[0]),
+         static_cast<int64_t>(b1_npz.shape[1]) },
+        h_opt);
 
-    for (long i=0; i<b1_shape[0]; ++i) {
-        b1.push_back(_b1.index({i}));
+    for (long i = 0; i < static_cast<long>(b1_npz.shape[0]); ++i) {
+        b1.push_back(_b1.index({ i }));
         b1[i] = b1[i].to(torch::kFloat);
         b1[i] = b1[i].to(torch::kCUDA);
     }
 
+    // Process cc
     cnpy::NpyArray cc_npz = F["cc"];
     auto b_opt = torch::TensorOptions().dtype(torch::kByte);
-    long cc_shape[2] = { static_cast<long>(cc_npz.shape[0]), 
-                         static_cast<long>(cc_npz.shape[1]) };
-    cc = torch::from_blob(cc_npz.data<char>(), cc_shape, b_opt);
+    cc = torch::from_blob(
+        cc_npz.data<char>(),
+        { static_cast<int64_t>(cc_npz.shape[0]),
+         static_cast<int64_t>(cc_npz.shape[1]) },
+        b_opt);
     cc = cc.to(torch::kInt);
     cc = cc.to(torch::kCUDA);
 
+    // Process cf
     cnpy::NpyArray cf_npz = F["cf"];
-    long cf_shape[2] = { static_cast<long>(cf_npz.shape[0]), 
-                         static_cast<long>(cf_npz.shape[1]) };
-    cf = torch::from_blob(cf_npz.data<char>(), cf_shape, h_opt);
+    cf = torch::from_blob(
+        cf_npz.data<char>(),
+        { static_cast<int64_t>(cf_npz.shape[0]),
+         static_cast<int64_t>(cf_npz.shape[1]) },
+        h_opt);
     cf = cf.to(torch::kFloat);
     cf = cf.to(torch::kCUDA);
 
+    // Process pyramid (this one doesn�t use from_blob)
     cnpy::NpyArray pyramid_npz = F["pyramid"];
-    for (long i=0; i<w0_shape[0]; ++i) {
+    for (long i = 0; i < static_cast<long>(w0_npz.shape[0]); ++i) {
         pyramid_cf_cpu.push_back(pyramid_npz.data<long>()[i]);
     }
 }
+
 
 void SDF::initTrinkets(uint num_pts, uint num_levels, uint* pyramid, ushort4* points) {
     m_points = points;

@@ -48,13 +48,13 @@ using namespace std;
 using namespace torch::indexing;
 
 
-extern ulong GetStorageBytes(
+extern uint64_t GetStorageBytes(
   void* d_temp_storage, 
   uint* d_Info, 
   uint* d_PrefixSum, 
   uint max_total_points);
 
-extern void generate_primary_rays_cuda(
+extern uint generate_primary_rays_cuda(
   uint imageW, 
   uint imageH, 
   float4x4& nM, 
@@ -136,7 +136,7 @@ extern uint spc_raytrace_cuda(
     uint*   d_Info,
     uint*   d_PrefixSum, 
     void* d_temp_storage, 
-    ulong temp_storage_bytes);
+    uint64_t temp_storage_bytes);
 
 torch::Tensor spc_raytrace(
     torch::Tensor octree,
@@ -184,7 +184,7 @@ torch::Tensor spc_raytrace(
 
     // set up memory for DeviceScan calls
     void* d_temp_storage = NULL;
-    ulong temp_storage_bytes = GetStorageBytes(d_temp_storage, d_Info, d_PrefixSum, MAX_TOTAL_POINTS);
+    uint64_t temp_storage_bytes = GetStorageBytes(d_temp_storage, d_Info, d_PrefixSum, MAX_TOTAL_POINTS);
     torch::Tensor temp_storage = torch::zeros({(long)temp_storage_bytes}, torch::device(torch::kCUDA).dtype(torch::kByte));
     d_temp_storage = (void*)temp_storage.data_ptr<uchar>();
 

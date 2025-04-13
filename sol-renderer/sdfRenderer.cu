@@ -50,6 +50,16 @@
 #include <cub/util_allocator.cuh>
 #include <cub/device/device_scan.cuh>
 
+inline void cudaPrintError(const char* file, const int line)
+{
+    auto status = cudaGetLastError();
+    if (status != cudaSuccess)
+    {
+        printf("%s (%d) - %d: %s\n", file, line, status, cudaGetErrorString(status));
+        int a = 0;
+    }
+}
+
 #define CUDA_PRINT_ERROR() cudaPrintError(__FILE__, __LINE__)
 
 // #define DEBUG
@@ -198,8 +208,15 @@ uint RenderImage(
 
     // map PBO to get CUDA device pointer
     cudaGraphicsMapResources(1, &cuda_pbo_resource, 0);
-    size_t num_bytes;
+    size_t num_bytes = num_rays * sizeof(color_type);
     cudaGraphicsResourceGetMappedPointer((void **)&d_output, &num_bytes, cuda_pbo_resource);
+
+    if (num_bytes < num_rays * sizeof(color_type)) {
+        printf("Error: mapped buffer size (%zu bytes) is smaller than expected (%zu bytes).\n",
+            num_bytes, num_rays * sizeof(color_type));
+        // Handle error: adjust your buffer allocation or how many bytes you intend to clear
+    }
+
     cudaMemset(d_output, g_Renderer!=0?0:-1, num_rays * sizeof(color_type)); //clear image buffer
     CUDA_PRINT_ERROR();
 

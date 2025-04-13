@@ -403,8 +403,8 @@ int main(int argc, char **argv)
     CUDA_PRINT_ERROR();
 
     //// GL initialization
-    //initGLBuffers(g_Width, g_Height);
-    initGLBuffers(500, 500);
+    initGLBuffers(g_Width, g_Height);
+    //initGLBuffers(500, 500);
     CUDA_PRINT_ERROR();
     std::cout << "No errors after buffer init" << std::endl;
 

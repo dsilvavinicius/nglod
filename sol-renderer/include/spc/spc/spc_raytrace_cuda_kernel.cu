@@ -61,12 +61,17 @@ d_ScanNodesA(
 }
 
 
-ulong GetStorageBytes(void* d_temp_storage, uint* d_Info, uint* d_PrefixSum, uint max_total_points)
+uint64_t GetStorageBytes(void* d_temp_storage, uint* d_Info, uint* d_PrefixSum, uint max_total_points)
 {
-    ulong       temp_storage_bytes = 0;
-    /*kaolin::*/cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, max_total_points); 
-    return temp_storage_bytes;
+    // Use size_t for temporary storage size
+    uint64_t temp_storage_bytes = 0;
+
+    // Pass the stream parameter (0 means the default stream).
+    cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum, max_total_points, 0);
+
+    return static_cast<uint64_t>(temp_storage_bytes);
 }
+
 
 
 __global__ void
@@ -191,22 +196,22 @@ d_Compactify(uint num, uint2* nuggetsIn, uint2* nuggetsOut, uint* info, uint* pr
 
 
 
-uint spc_raytrace_cuda( 
+uint spc_raytrace_cuda(
     uchar* d_octree,
     uint Level,
     uint targetLevel,
     point_data* d_points,
     uint* h_pyramid,
-    uint*   d_D,
-    uint*   d_S, 
+    uint* d_D,
+    uint* d_S,
     uint num,
     float3* d_Org,
     float3* d_Dir,
-    uint2*  d_NuggetBuffers,
-    uint*   d_Info,
-    uint*   d_PrefixSum, 
-    void* d_temp_storage, 
-    ulong temp_storage_bytes)
+    uint2* d_NuggetBuffers,
+    uint* d_Info,
+    uint* d_PrefixSum,
+    void* d_temp_storage,
+    uint64_t temp_storage_bytes)  // changed parameter type here
 {
 #ifdef VERBOSE
     cudaEvent_t start, stop;
@@ -217,16 +222,17 @@ uint spc_raytrace_cuda(
 
     uint* PyramidSum = h_pyramid + Level + 2;
 
-    uint2*  d_Nuggets[2];
+    uint2* d_Nuggets[2];
     d_Nuggets[0] = d_NuggetBuffers;
     d_Nuggets[1] = d_NuggetBuffers + MAX_TOTAL_POINTS;
 
     int osize = PyramidSum[Level];
 
-    d_ScanNodesA << < (osize + 1023) / 1024, 1024 >> >(osize, d_octree, d_D);
-    /*kaolin::*/cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_D, d_S, osize); //NOTE: ExclusiveSum
+    d_ScanNodesA << < (osize + 1023) / 1024, 1024 >> > (osize, d_octree, d_D);
+    // Now that temp_storage_bytes is size_t, this matches the expected type:
+    cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_D, d_S, osize); // ExclusiveSum call fixed
 
-    d_InitNuggets << <(num + 1023) / 1024, 1024 >> > (num, d_Nuggets[0]);
+    d_InitNuggets << < (num + 1023) / 1024, 1024 >> > (num, d_Nuggets[0]);
 
     uint cnt, buffer = 0;
 
@@ -236,16 +242,18 @@ uint spc_raytrace_cuda(
     for (uint l = 0; l <= targetLevel; l++)
     {
         point_data* proot = d_points + PyramidSum[l];
-        d_Decide << <(num + 1023) / 1024, 1024 >> > (num, proot, d_Org, d_Dir, d_Nuggets[buffer], d_Info, d_D, l, PyramidSum[l], targetLevel - l);
-        /*kaolin::*/cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum + 1, num);//start sum on second element
+        d_Decide << < (num + 1023) / 1024, 1024 >> > (num, proot, d_Org, d_Dir, d_Nuggets[buffer], d_Info, d_D, l, PyramidSum[l], targetLevel - l);
+        // Note: InclusiveSum now also accepts a size_t reference:
+        cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_Info, d_PrefixSum + 1, num); // InclusiveSum call fixed
         cudaMemcpy(&cnt, d_PrefixSum + num, sizeof(uint), cudaMemcpyDeviceToHost);
 
-        if (cnt == 0 || cnt > MAX_TOTAL_POINTS) break; // either miss everything, or exceed memory allocation
+        if (cnt == 0 || cnt > MAX_TOTAL_POINTS)
+            break; // either miss everything, or exceed memory allocation
 
         if (l < targetLevel)
-            d_Subdivide << <(num + 1023) / 1024, 1024 >> > (num, d_Nuggets[buffer], d_Nuggets[(buffer + 1) % 2], d_Org, proot, d_octree, d_S, d_Info, d_PrefixSum, l, PyramidSum[l], PyramidSum[l+1]);
+            d_Subdivide << < (num + 1023) / 1024, 1024 >> > (num, d_Nuggets[buffer], d_Nuggets[(buffer + 1) % 2], d_Org, proot, d_octree, d_S, d_Info, d_PrefixSum, l, PyramidSum[l], PyramidSum[l + 1]);
         else
-            d_Compactify << <(num + 1023) / 1024, 1024 >> > (num, d_Nuggets[buffer], d_Nuggets[(buffer + 1) % 2], d_Info, d_PrefixSum);
+            d_Compactify << < (num + 1023) / 1024, 1024 >> > (num, d_Nuggets[buffer], d_Nuggets[(buffer + 1) % 2], d_Info, d_PrefixSum);
 
         cudaGetLastError();
 
@@ -258,11 +266,12 @@ uint spc_raytrace_cuda(
     cudaEventSynchronize(stop);
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
-    printf("\nspc_raytrace_cuda: %d  voxels hit in %f ms\n", num, milliseconds);
+    printf("\nspc_raytrace_cuda: %d voxels hit in %f ms\n", num, milliseconds);
 #endif
 
     return cnt;
 }
+
 
 
 ////////// generate rays //////////////////////////////////////////////////////////////////////////
